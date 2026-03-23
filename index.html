@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MIS Vocab Study Guide — Moore's Law & Hardware</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --orange: #BF5700;
+    --orange-light: #D4691A;
+    --cream: #FDF8F2;
+    --dark: #1A1208;
+    --mid: #3D2B10;
+    --soft: #F0E6D3;
+    --accent: #FFB347;
+    --card-bg: #FFFFFF;
+    --correct: #2D6A4F;
+    --wrong: #9B2335;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--dark);
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 18px,
+      rgba(191,87,0,0.08) 18px,
+      rgba(191,87,0,0.08) 19px
+    );
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    position: relative;
+    line-height: 1;
+  }
+  header p {
+    color: #B0956E;
+    margin-top: 0.6rem;
+    font-size: 1rem;
+    font-weight: 300;
+    position: relative;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--orange);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.8rem;
+    border-radius: 99px;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+
+  /* ── NAV TABS ── */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    background: var(--soft);
+    border-bottom: 2px solid #E0C9A6;
+    flex-wrap: wrap;
+  }
+  nav button {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    padding: 0.55rem 1.4rem;
+    border: 2px solid transparent;
+    border-radius: 99px;
+    cursor: pointer;
+    background: white;
+    color: var(--mid);
+    transition: all 0.2s;
+  }
+  nav button:hover { border-color: var(--orange); color: var(--orange); }
+  nav button.active {
+    background: var(--orange);
+    color: white;
+    border-color: var(--orange);
+  }
+
+  /* ── SECTIONS ── */
+  section { display: none; padding: 2.5rem 1rem 4rem; max-width: 960px; margin: 0 auto; }
+  section.active { display: block; }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 0.85rem 1.2rem 0.85rem 3rem;
+    border: 2px solid #E0C9A6;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    background: white;
+    color: var(--dark);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--orange); }
+  .search-wrap::before {
+    content: '🔍';
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+  }
+
+  /* ── VOCAB CARDS ── */
+  .vocab-grid { display: grid; gap: 1.25rem; }
+
+  .vocab-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 2px solid #EAD9C0;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+    animation: fadeUp 0.4s ease both;
+  }
+  .vocab-card:hover { box-shadow: 0 8px 28px rgba(191,87,0,0.12); transform: translateY(-2px); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    background: var(--dark);
+    padding: 1rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: #7A6040;
+    min-width: 28px;
+  }
+  .card-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  .card-body { padding: 1.25rem 1.4rem; display: grid; gap: 0.85rem; }
+
+  .def-block { display: grid; gap: 0.25rem; }
+  .def-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--orange);
+  }
+  .def-text {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #3D2B10;
+  }
+  .example-block {
+    background: var(--soft);
+    border-left: 3px solid var(--orange);
+    border-radius: 0 8px 8px 0;
+    padding: 0.7rem 1rem;
+  }
+  .example-block .def-label { color: var(--orange-light); }
+  .example-block .def-text { color: #5A3E1B; font-style: italic; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    background: #F0E6D3;
+    color: #8A5C22;
+    margin-top: 0.1rem;
+  }
+
+  /* ── QUIZ ── */
+  .quiz-wrap { display: grid; gap: 1.5rem; }
+
+  .q-card {
+    background: white;
+    border-radius: 16px;
+    border: 2px solid #EAD9C0;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  .q-header {
+    background: var(--dark);
+    padding: 0.85rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .q-num {
+    background: var(--orange);
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .q-header p {
+    color: #EAD9C0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .q-options { padding: 1.25rem 1.4rem; display: grid; gap: 0.6rem; }
+  .option-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    text-align: left;
+    padding: 0.75rem 1.1rem;
+    border-radius: 10px;
+    border: 2px solid #E0C9A6;
+    background: var(--cream);
+    color: var(--dark);
+    cursor: pointer;
+    transition: all 0.18s;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--orange);
+    background: #FDF0E3;
+    color: var(--orange);
+  }
+  .option-btn.correct {
+    border-color: var(--correct);
+    background: #D8F3DC;
+    color: var(--correct);
+    font-weight: 600;
+  }
+  .option-btn.wrong {
+    border-color: var(--wrong);
+    background: #FFE4E8;
+    color: var(--wrong);
+  }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin: 0 1.4rem 1.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: #D8F3DC; color: var(--correct); border: 1.5px solid #95D5A5; }
+  .feedback.wrong-fb  { background: #FFE4E8; color: var(--wrong);   border: 1.5px solid #F4A9B3; }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    background: white;
+    border: 2px solid #EAD9C0;
+    border-radius: 16px;
+    padding: 1.5rem 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .score-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--orange);
+    line-height: 1;
+  }
+  .score-label { font-size: 0.85rem; color: #8A6640; font-weight: 500; }
+  .reset-btn {
+    margin-left: auto;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.4rem;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .reset-btn:hover { background: var(--orange-light); }
+
+  /* ── PROGRESS ── */
+  .progress-track {
+    height: 6px;
+    background: #EAD9C0;
+    border-radius: 99px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--orange);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.78rem;
+    color: #B0956E;
+    border-top: 1px solid #E0C9A6;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width: 600px) {
+    .score-bar { flex-direction: column; align-items: flex-start; }
+    .reset-btn { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">MIS — Information Technology Management</div>
+  <h1>Moore's Law &amp; Hardware</h1>
+  <p>Vocabulary Study Guide &amp; Practice Quiz</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('vocab', this)">📖 Vocab Terms</button>
+  <button onclick="showTab('quiz', this)">📝 Practice Quiz</button>
+</nav>
+
+<!-- ══════════════ VOCAB SECTION ══════════════ -->
+<section id="vocab" class="active">
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Search terms..." oninput="filterCards()"/>
+  </div>
+  <div class="vocab-grid" id="vocabGrid"></div>
+</section>
+
+<!-- ══════════════ QUIZ SECTION ══════════════ -->
+<section id="quiz">
+  <div class="score-bar">
+    <div>
+      <div class="score-big" id="scoreDisplay">0/5</div>
+      <div class="score-label">Questions Answered Correctly</div>
+    </div>
+    <button class="reset-btn" onclick="resetQuiz()">↺ Reset Quiz</button>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="quiz-wrap" id="quizWrap"></div>
+</section>
+
+<footer>McCombs School of Business · UT Austin · MIS Study Guide</footer>
+
+<script>
+// ══════════════════════════════════════════════
+//  VOCAB DATA
+// ══════════════════════════════════════════════
+const terms = [
+  {
+    term: "Moore's Law",
+    tag: "Core Concept",
+    exact: "The observation by Gordon Moore (co-founder of Intel) that the number of transistors on a microchip doubles approximately every 18 months, while costs decrease — it became a business plan for the semiconductor industry.",
+    simple: "Computers keep getting twice as powerful every couple of years, while getting cheaper.",
+    example: "The iPhone you buy today is thousands of times more powerful than a room-sized computer from the 1970s, and costs a fraction of the price."
+  },
+  {
+    term: "Price Elasticity of Demand",
+    tag: "Economics",
+    exact: "An economic principle stating that as the price of a good decreases, demand for it increases — since computing power keeps getting cheaper, people keep finding new ways to use it.",
+    simple: "The cheaper something gets, the more people want it and use it.",
+    example: "When cloud storage became nearly free, people started storing everything — photos, videos, backups — whereas before they were selective about what they saved."
+  },
+  {
+    term: "Semiconductor",
+    tag: "Hardware",
+    exact: "A material that conducts electricity under certain conditions and inhibits it under others; the foundation of modern electronics, used in CPUs, GPUs, memory, and more.",
+    simple: "A special material that can act like both a conductor and an insulator — the building block of all computer chips.",
+    example: "Silicon (the material in sand) is a semiconductor used in virtually every computer chip, phone, and electronic device you own."
+  },
+  {
+    term: "Transistor",
+    tag: "Hardware",
+    exact: "A tiny electronic switch on a computer chip that can turn on or off to represent binary data (1s and 0s); modern chips contain billions of them packed together.",
+    simple: "A microscopic on/off switch inside a chip — billions work together to run your computer.",
+    example: "Just like a light switch controls electricity in your house, a transistor controls electricity inside a chip to represent a 1 (on) or 0 (off)."
+  },
+  {
+    term: "Computer Chip (Microchip)",
+    tag: "Hardware",
+    exact: "A small piece of semiconductor material containing billions of transistors packed together to perform complex computations; includes CPUs, GPUs, and memory chips.",
+    simple: "A tiny wafer packed with billions of switches that does all the thinking and processing in your device.",
+    example: "Apple's M3 chip contains billions of transistors on a piece of silicon smaller than your fingernail."
+  },
+  {
+    term: "Bits & Binary Digits",
+    tag: "Data",
+    exact: "The most basic unit of data in computing, represented as either a 0 or 1; computers represent all data — text, images, video — using combinations of these binary digits.",
+    simple: "The smallest piece of data a computer understands — either a 0 or a 1. Everything digital is made of these.",
+    example: "The letter 'A' is stored as 01000001 — just eight 1s and 0s (8 bits) strung together."
+  },
+  {
+    term: "Byte (and Storage Units)",
+    tag: "Data",
+    exact: "A unit of digital data equal to 8 bits; larger units include Kilobyte (KB), Megabyte (MB), Gigabyte (GB), Terabyte (TB), Petabyte (PB), and Exabyte (EB), each roughly 1,000x larger than the last.",
+    simple: "A byte is one character of data (like the letter 'A'), and storage units stack up: KB → MB → GB → TB and beyond.",
+    example: "A text message is a few KB; a photo is a few MB; a movie is a few GB; your laptop's hard drive might be 1 TB."
+  },
+  {
+    term: "CPU (Central Processing Unit)",
+    tag: "Hardware",
+    exact: "The primary processing component of a computer that executes instructions from software, manages data flow, and coordinates all other hardware components.",
+    simple: "The brain of the computer — it reads instructions and carries them out.",
+    example: "When you open a web browser, the CPU reads the code, tells the screen what to display, retrieves data from memory, and manages everything at once."
+  },
+  {
+    term: "Main Memory (RAM)",
+    tag: "Hardware",
+    exact: "Short-term, fast-access storage that the CPU uses as its active workspace to hold data and instructions currently being processed.",
+    simple: "The CPU's desk — it holds whatever the computer is actively working on right now.",
+    example: "When you have 10 browser tabs open and your computer slows down, your RAM is full — it's running out of desk space."
+  },
+  {
+    term: "Storage",
+    tag: "Hardware",
+    exact: "Long-term memory in a computer that retains data even when the device is powered off; holds the operating system, applications, and files.",
+    simple: "The computer's filing cabinet — it holds everything even when the computer is turned off.",
+    example: "Your photos and documents don't disappear when you shut down your laptop because they're saved in storage (SSD or hard drive), not RAM."
+  },
+  {
+    term: "Input/Output (I/O) Devices",
+    tag: "Hardware",
+    exact: "Hardware components that allow data to enter (input) or exit (output) a computer system, including keyboards, mice, monitors, and printers.",
+    simple: "Anything that sends data into the computer (input) or receives data from it (output).",
+    example: "A keyboard is an input device; a monitor is an output device — together they let you interact with the computer."
+  },
+  {
+    term: "Fab (Semiconductor Fabrication Plant)",
+    tag: "Industry",
+    exact: "A highly specialized manufacturing facility that produces semiconductor chips; costs over $20 billion to build, requires massive ultra-purified water and power, and contains cleanrooms and photolithography stations.",
+    simple: "The factory where computer chips are made — incredibly expensive and complex to build and run.",
+    example: "TSMC's fab in Taiwan is where most of the world's high-end chips — including Apple's M-series and Nvidia's AI chips — are manufactured."
+  },
+  {
+    term: "Konana's Software Ecosystem",
+    tag: "Strategy",
+    exact: "A layered technology model where each layer (Hardware → OS → Database → Middleware → Enterprise Apps → Consumer Apps) depends on the layers beneath it, creating lock-in and switching costs.",
+    simple: "Technology is built in layers — each depends on what's below it, making switching very hard and costly.",
+    example: "A company that builds all its software on Windows can't easily switch to Mac because all their apps, databases, and middleware were built around Windows."
+  },
+  {
+    term: "Lock-in / Switching Costs",
+    tag: "Strategy",
+    exact: "The financial, operational, or strategic costs that make it difficult for a user or organization to switch from one technology platform, vendor, or system to another.",
+    simple: "Once you're deep into a tech system, it's expensive and painful to leave — that's the 'trap.'",
+    example: "If your company uses Microsoft 365 for everything, switching to Google Workspace means retraining staff, converting files, and rebuilding workflows."
+  },
+  {
+    term: "Emulator",
+    tag: "Software",
+    exact: "A software program that allows one system to behave like another, enabling older software written for a different processor to run on new hardware without being rewritten.",
+    simple: "A translator that lets new hardware run old software that wasn't built for it.",
+    example: "Apple's Rosetta 2 emulator let older Intel-based Mac apps run on the new M-series chips without any changes from developers."
+  },
+  {
+    term: "Compiler",
+    tag: "Software",
+    exact: "A program that translates human-readable source code written by a developer into machine-level instruction sets that a specific processor can understand and execute.",
+    simple: "A translator that converts code a programmer writes into a language the chip can actually run.",
+    example: "A developer writes an app in Swift; the compiler converts it into 1s and 0s that Apple's M-series chip can directly execute."
+  },
+  {
+    term: "Multicore Microprocessors",
+    tag: "Hardware",
+    exact: "A processor containing two or more independent calculating cores on the same piece of silicon, allowing multiple tasks simultaneously while running cooler and using less power.",
+    simple: "A chip with multiple 'brains' inside so it can do many things at once instead of one thing at a time.",
+    example: "Your laptop likely has 8–10 cores — while one runs Spotify, another handles your browser, and another runs background updates, all simultaneously."
+  },
+  {
+    term: "GPU & ASICs",
+    tag: "Hardware",
+    exact: "A GPU (Graphics Processing Unit) is a processor originally designed for graphics requiring massive parallelism, ideal for AI workloads. ASICs (Application-Specific Integrated Circuits) are chips designed for one specific task.",
+    simple: "GPUs were made for video games but turned out to be perfect for AI. ASICs are chips built to do just one job extremely well.",
+    example: "Nvidia's GPUs were originally for better-looking video games, but because they do millions of calculations at once, they became the go-to chip for training AI models like ChatGPT."
+  },
+  {
+    term: "Parallelism",
+    tag: "Computing",
+    exact: "A computing approach where multiple processors or cores work simultaneously on different parts of a problem, rather than one processor handling tasks sequentially; used in supercomputers, multicore CPUs, GPUs, and cloud computing.",
+    simple: "Instead of one brain doing everything one step at a time, you split the work across many brains all working at once.",
+    example: "Like a group project — instead of one person writing the whole paper, five people each write a section at the same time. GPUs use this to run thousands of AI calculations simultaneously."
+  },
+  {
+    term: "Supercomputers",
+    tag: "Computing",
+    exact: "Computers among the fastest in the world at the time of their introduction, typically using massively parallel architectures with many microprocessors working simultaneously.",
+    simple: "Extremely powerful computers that solve massive problems by having thousands of processors work together at the same time.",
+    example: "Weather agencies use supercomputers to run complex climate simulations that would take a regular laptop thousands of years to complete."
+  },
+  {
+    term: "Grid & Cluster Computing",
+    tag: "Computing",
+    exact: "Methods of connecting multiple individual computers over a network to work together as a unified parallel processing system to tackle large computational problems.",
+    simple: "Linking many regular computers together so they act like one giant powerful computer.",
+    example: "SETI@home used millions of volunteers' idle home computers connected over the internet to collectively search for signals from space — that's grid computing."
+  },
+  {
+    term: "Latency",
+    tag: "Networking",
+    exact: "The delay between initiating a request and receiving a response in a computing or network system; measured in milliseconds (ms); especially relevant when processing is offloaded to the cloud, involving an internet round trip.",
+    simple: "How long it takes for data to travel from point A to point B — the delay you actually feel.",
+    example: "When gaming online and your character moves a second after you press the button, that's high latency (lag). For gaming, low latency matters far more than transfer volume."
+  },
+  {
+    term: "Bandwidth",
+    tag: "Networking",
+    exact: "The maximum rate at which data can be transferred over a network connection, measured in Megabits per second (Mbps) or Gigabits per second (Gbps); determines how much data flows at once, not how fast it starts moving.",
+    simple: "How much data can move at the same time — like the number of lanes on a highway.",
+    example: "Streaming 4K Netflix requires about 25 Mbps of bandwidth. You need a wide pipe to push all that video data — but latency doesn't matter much since the video buffers."
+  },
+  {
+    term: "Cloud Computing",
+    tag: "Computing",
+    exact: "The practice of sending complex computational tasks over the internet to remote servers in data centers rather than processing locally on a user's device; introduces latency and security tradeoffs.",
+    simple: "Instead of doing heavy computing on your own device, you send the work over the internet to a powerful server somewhere else.",
+    example: "When you ask ChatGPT a question, your device doesn't process the AI — it sends your request to massive data centers, gets the answer, and shows it to you."
+  },
+  {
+    term: "E-Waste (Electronic Waste)",
+    tag: "Sustainability",
+    exact: "Discarded, often obsolete technology and electronic devices; global e-waste reached 62 million tons in 2022 and contains toxic substances like lead, cadmium, and mercury that contaminate soil and water if not properly recycled.",
+    simple: "Old electronics that get thrown away — a massive, growing pollution problem.",
+    example: "Every time a new iPhone launches and millions throw away their old one, those phones become e-waste — most end up in landfills in developing countries, leaking toxic chemicals."
+  },
+  {
+    term: "Quantum Computing",
+    tag: "Emerging Tech",
+    exact: "An emerging computing model using quantum bits (qubits) instead of binary bits (1s and 0s), enabling vastly more complex state representations simultaneously; not yet commercially feasible but promises breakthroughs in security, medicine, and forecasting.",
+    simple: "A completely new type of computing that goes beyond 1s and 0s — it processes enormous possibilities at once, but is still experimental.",
+    example: "A regular computer would take millions of years to crack modern encryption. A quantum computer could theoretically do it in minutes — which is why it's both exciting and alarming."
+  },
+  {
+    term: "Neuromorphic Computing",
+    tag: "Emerging Tech",
+    exact: "A computing approach that mimics the structure and function of the human brain using networks of artificial neurons, designed for tasks like pattern recognition, AI, robotics, and natural language processing.",
+    simple: "A type of computing that works like a human brain — using connected 'neurons' instead of traditional circuits.",
+    example: "Neuromorphic chips are being tested to help robots recognize faces or voices more naturally and efficiently, similar to how your brain instantly recognizes a friend's face in a crowd."
+  },
+  {
+    term: "Oligopoly",
+    tag: "Industry",
+    exact: "A market structure where a small number of firms dominate an industry, limiting competition and creating significant economic and security risks — as seen in chip manufacturing where TSMC controls the majority of high-end production.",
+    simple: "When only a few companies control an entire market, giving them enormous power and creating big risks if one has problems.",
+    example: "Because TSMC in Taiwan makes most of the world's advanced chips, a natural disaster or conflict there could cripple the entire global tech industry."
+  },
+  {
+    term: "Vertical Integration",
+    tag: "Strategy",
+    exact: "A business strategy where a company controls multiple stages of its own supply chain — in chips, designing AND manufacturing its own semiconductors rather than outsourcing production.",
+    simple: "When one company handles everything from start to finish instead of relying on others for parts of the process.",
+    example: "Intel designs AND manufactures its own chips (vertically integrated), while Apple designs chips but outsources manufacturing to TSMC — Apple is not vertically integrated in chip production."
+  }
+];
+
+// ══════════════════════════════════════════════
+//  QUIZ DATA
+// ══════════════════════════════════════════════
+const questions = [
+  {
+    q: "Moore's Law states that the number of transistors on a chip doubles approximately every _____, while costs decrease.",
+    options: ["5 years", "18 months", "6 months", "10 years"],
+    answer: 1,
+    explanation: "Moore's Law, observed by Intel co-founder Gordon Moore, states transistors double roughly every 18 months — making chips more powerful and cheaper over time."
+  },
+  {
+    q: "A computer is experiencing a delay when sending data to a cloud server and receiving a response. What term best describes this delay?",
+    options: ["Bandwidth", "Parallelism", "Latency", "Throughput"],
+    answer: 2,
+    explanation: "Latency is the delay between initiating a request and receiving a response — especially relevant when offloading tasks to the cloud, which involves an internet round trip."
+  },
+  {
+    q: "Nvidia's GPUs became essential for AI because they were originally designed with a highly parallel architecture. What is the general term for chips designed for one specific task?",
+    options: ["CPUs", "ASICs", "RAM", "Semiconductors"],
+    answer: 1,
+    explanation: "ASICs (Application-Specific Integrated Circuits) are chips designed for a single specific purpose. Nvidia's GPUs, originally built for graphics, turned out to be ideal for AI due to their massively parallel design."
+  },
+  {
+    q: "A company built all of its software on a specific operating system. Now switching to a different OS would require retraining all staff, converting thousands of files, and rebuilding workflows. This is best described as:",
+    options: ["Price Elasticity", "Parallelism", "Lock-in / Switching Costs", "Vertical Integration"],
+    answer: 2,
+    explanation: "Lock-in (switching costs) refers to the financial, operational, and strategic barriers that make it difficult to leave a technology platform — exactly what Konana's Software Ecosystem model predicts."
+  },
+  {
+    q: "Your ISP advertises a 200 Mbps internet plan. What is your actual maximum download speed in Megabytes per second (MB/s)?",
+    options: ["200 MB/s", "25 MB/s", "1,600 MB/s", "8 MB/s"],
+    answer: 1,
+    explanation: "Because 8 bits = 1 byte, you divide Mbps by 8 to get MB/s. 200 Mbps ÷ 8 = 25 MB/s. ISPs advertise in bits, but files are measured in bytes — so your speed always looks 8x smaller than advertised."
+  }
+];
+
+// ══════════════════════════════════════════════
+//  BUILD VOCAB
+// ══════════════════════════════════════════════
+function buildVocab(list) {
+  const grid = document.getElementById('vocabGrid');
+  grid.innerHTML = '';
+  if (list.length === 0) {
+    grid.innerHTML = '<p style="color:#8A6640;text-align:center;padding:2rem;">No terms match your search.</p>';
+    return;
+  }
+  list.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.style.animationDelay = `${i * 0.04}s`;
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="card-num">${String(i+1).padStart(2,'0')}</span>
+        <h2>${t.term}</h2>
+        <span class="tag" style="margin-left:auto">${t.tag}</span>
+      </div>
+      <div class="card-body">
+        <div class="def-block">
+          <span class="def-label">Exact Definition</span>
+          <p class="def-text">${t.exact}</p>
+        </div>
+        <div class="def-block">
+          <span class="def-label">Simple Definition</span>
+          <p class="def-text">${t.simple}</p>
+        </div>
+        <div class="example-block">
+          <span class="def-label">Example</span>
+          <p class="def-text">${t.example}</p>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function filterCards() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = terms.filter(t =>
+    t.term.toLowerCase().includes(q) ||
+    t.exact.toLowerCase().includes(q) ||
+    t.simple.toLowerCase().includes(q) ||
+    t.tag.toLowerCase().includes(q)
+  );
+  buildVocab(filtered);
+}
+
+// ══════════════════════════════════════════════
+//  BUILD QUIZ
+// ══════════════════════════════════════════════
+let score = 0;
+let answered = new Array(questions.length).fill(false);
+
+function buildQuiz() {
+  const wrap = document.getElementById('quizWrap');
+  wrap.innerHTML = '';
+  questions.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `q${qi}`;
+    card.style.animationDelay = `${qi * 0.08}s`;
+    const opts = q.options.map((o, oi) =>
+      `<button class="option-btn" onclick="checkAnswer(${qi},${oi})">${o}</button>`
+    ).join('');
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-num">${qi+1}</div>
+        <p>${q.q}</p>
+      </div>
+      <div class="q-options">${opts}</div>
+      <div class="feedback" id="fb${qi}"></div>`;
+    wrap.appendChild(card);
+  });
+  updateScore();
+}
+
+function checkAnswer(qi, chosen) {
+  if (answered[qi]) return;
+  answered[qi] = true;
+  const q = questions[qi];
+  const card = document.getElementById(`q${qi}`);
+  const btns = card.querySelectorAll('.option-btn');
+  const fb = document.getElementById(`fb${qi}`);
+  btns.forEach(b => b.disabled = true);
+  btns[q.answer].classList.add('correct');
+  if (chosen === q.answer) {
+    score++;
+    fb.textContent = '✅ Correct! ' + q.explanation;
+    fb.className = 'feedback show correct-fb';
+  } else {
+    btns[chosen].classList.add('wrong');
+    fb.textContent = '❌ Not quite. ' + q.explanation;
+    fb.className = 'feedback show wrong-fb';
+  }
+  updateScore();
+}
+
+function updateScore() {
+  const total = answered.filter(Boolean).length;
+  document.getElementById('scoreDisplay').textContent = `${score}/${questions.length}`;
+  document.getElementById('progressFill').style.width = `${(total / questions.length) * 100}%`;
+}
+
+function resetQuiz() {
+  score = 0;
+  answered = new Array(questions.length).fill(false);
+  buildQuiz();
+}
+
+// ══════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════
+function showTab(id, btn) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── INIT ──
+buildVocab(terms);
+buildQuiz();
+</script>
+</body>
+</html>
